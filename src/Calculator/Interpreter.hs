@@ -24,7 +24,7 @@ eval (ESub exp1 exp2) = do
 eval (EMul exp1 exp2) = do
   v1 <- eval exp1
   v2 <- eval exp2
-  return $ v2 * v2
+  return $ v1 * v2
 eval (EDiv exp1 exp2) = do
   dividend <- eval exp1
   divisor <- eval exp2
