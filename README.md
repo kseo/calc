@@ -13,6 +13,6 @@ $ stack build
 ```
 $ stack exec calc-exe
 % (3+2)*6
-36
+30
 ```
 
