@@ -4,40 +4,40 @@ module Calculator.Parser
 
 import Calculator.AST
 
-import           Control.Applicative  hiding (many, (<|>))
-import           Text.Parsec
-import           Text.Parsec.Expr
-import           Text.Parsec.Language (haskellStyle)
-import qualified Text.Parsec.Token    as P
-import           Text.Parsec.String   (Parser)
+import           Control.Applicative hiding (many, (<|>))
+import           Control.Monad (void)
+import           Text.Megaparsec
+import           Text.Megaparsec.Char
+import           Text.Megaparsec.Expr
+import qualified Text.Megaparsec.Lexer as L
+import           Text.Megaparsec.String (Parser)
 
-lexer :: P.TokenParser ()
-lexer = P.makeTokenParser (haskellStyle
-                               { P.reservedOpNames = ["+", "-", "*", "/"]
-                               }
-                          )
+sc :: Parser () -- ‘sc’ stands for “space consumer”
+sc = L.space (void spaceChar) lineComment blockComment
+  where lineComment  = L.skipLineComment "//"
+        blockComment = L.skipBlockComment "/*" "*/"
 
-natural :: Parser Integer
-natural = P.natural lexer
+lexeme = L.lexeme sc
+symbol = L.symbol sc
+
+integer :: Parser Integer
+integer = lexeme L.integer
 
 parens :: Parser Exp -> Parser Exp
-parens = P.parens lexer
-
-reservedOp :: String -> Parser ()
-reservedOp = P.reservedOp lexer
+parens = between (symbol "(") (symbol ")")
 
 term =  parens expr
-    <|> EInt <$> natural
+    <|> EInt <$> integer
     <?> "term"
 
-table = [ [binary "*" EMul AssocLeft, binary "/" EDiv AssocLeft ]
-        , [binary "+" EAdd AssocLeft, binary "-" ESub AssocLeft ]
+table = [ [binary "*" EMul, binary "/" EDiv]
+        , [binary "+" EAdd, binary "-" ESub]
         ]
 
-binary  name fun = Infix   (do { reservedOp name; return fun })
+binary name f = InfixL (symbol name >> return f)
 
 expr :: Parser Exp
-expr = buildExpressionParser table term <?> "expression"
+expr = makeExprParser term table <?> "expression"
 
 parseExp :: String -> Either ParseError Exp
 parseExp = parse expr ""

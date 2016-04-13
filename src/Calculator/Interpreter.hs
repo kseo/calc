@@ -28,7 +28,7 @@ eval (EMul exp1 exp2) = do
 eval (EDiv exp1 exp2) = do
   dividend <- eval exp1
   divisor <- eval exp2
-  if divisor == 0 
+  if divisor == 0
     then throwError DivideByZero
     else return $ dividend `div` divisor
 eval (EInt n) = Right $ n
