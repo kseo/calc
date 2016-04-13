@@ -4,7 +4,6 @@ module Calculator.Parser
 
 import Calculator.AST
 
-import           Control.Applicative hiding (many, (<|>))
 import           Control.Monad (void)
 import           Text.Megaparsec
 import           Text.Megaparsec.Char
