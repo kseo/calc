@@ -31,7 +31,7 @@ eval (EDiv exp1 exp2) = do
   if divisor == 0
     then throwError DivideByZero
     else return $ dividend `div` divisor
-eval (EInt n) = Right $ n
+eval (EInt n) = Right n
 
 evalString :: String -> Either EvalError Integer
 evalString s = do
